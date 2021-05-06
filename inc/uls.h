@@ -20,6 +20,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <pwd.h>
+#include <unistd.h>
 #include <grp.h>
 #include <time.h>
 

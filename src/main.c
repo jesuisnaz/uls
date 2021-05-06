@@ -54,10 +54,11 @@ bool cmp(void *data1, void *data2) {
     int after_dot2;
     for (after_dot1 = 0; d1[after_dot1] == '.'; after_dot1++);
     for (after_dot2 = 0; d2[after_dot2] == '.'; after_dot2++);
-    bool result = mx_strcmp_ignore_case(d1 + after_dot1, d2 + after_dot2) > 0;
+    int result = mx_strcmp_ignore_case(d1 + after_dot1, d2 + after_dot2);
+    if (result == 0) return mx_strlen(data1) > mx_strlen(data2);
     mx_strdel(&d1);
     mx_strdel(&d2);
-    return result;
+    return result > 0;
 }
 
 bool cmp_r(void *data1, void *data2) {
@@ -67,10 +68,11 @@ bool cmp_r(void *data1, void *data2) {
     int after_dot2;
     for (after_dot1 = 0; d1[after_dot1] == '.'; after_dot1++);
     for (after_dot2 = 0; d2[after_dot2] == '.'; after_dot2++);
-    bool result = mx_strcmp_ignore_case(d1 + after_dot1, d2 + after_dot2) < 0;
+    int result = mx_strcmp_ignore_case(d1 + after_dot1, d2 + after_dot2);
+    if (result == 0) return mx_strlen(data1) <= mx_strlen(data2);
     mx_strdel(&d1);
     mx_strdel(&d2);
-    return result;
+    return result <= 0;
 }
 
 static void add_flag(s_ls *ls, char flag) {
@@ -123,8 +125,10 @@ static void parse_args(int argc, char **args, t_list **files, s_ls *ls) {
 static void print_entries(DIR *dirp, s_ls *ls) {
     s_dirent *direntp = NULL;
     t_list *entry_names = NULL;
-    bool skipped = true;
+    bool first = true;
+    char *separator = isatty(1) ? "  " : "\n";
 
+    if ((ls->flags & FLAG_1) != 0) separator = "\n";
     while ((direntp = readdir(dirp)) != NULL) {
         mx_push_back(&entry_names, mx_strdup(direntp->d_name));
     }
@@ -134,21 +138,19 @@ static void print_entries(DIR *dirp, s_ls *ls) {
          mx_strcmp(entry_names->data, "..") == 0) {
             if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
                 mx_pop_front(&entry_names);
-                skipped = true;
             } else {
-                if (!skipped) mx_printstr("  ");
+                if (!first) mx_printstr(separator);
+                first = false;
                 mx_printstr(entry_names->data);
-                skipped = false;
                 mx_pop_front(&entry_names);
             }
         } else if (((char *)entry_names->data)[0] == '.' &&
         ((ls->flags & (FLAG_A | FLAG_a)) == 0)) {
             mx_pop_front(&entry_names);
-            skipped = true;
         } else {
-            if (!skipped) mx_printstr("  ");
+            if (!first) mx_printstr(separator);
             mx_printstr(entry_names->data);
-            skipped = false;
+            first = false;
             mx_pop_front(&entry_names);
         }
         if (mx_is_empty(entry_names)) {
