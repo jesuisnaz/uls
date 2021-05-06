@@ -161,6 +161,7 @@ static void print_entries(DIR *dirp, s_ls *ls) {
 }
 
 static void print_l_format(s_stat *p_stat, char *entry) {
+    mx_printchar(get_filetype_char(p_stat));
     mx_printstr(permissions(p_stat));
     mx_printchar(' ');
     mx_printint(nlink(p_stat));

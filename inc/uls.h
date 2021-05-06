@@ -5,8 +5,9 @@
 #include <stdlib.h>
 
 #define __USE_MISC
+#define __USE_XOPEN
+
 #define NTIME_LEN 25
-#define PATH_MAX 50
 
 #define FLAG_l 0x1
 #define FLAG_a 0x2
@@ -19,6 +20,7 @@
 
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <grp.h>
@@ -44,3 +46,4 @@ char *get_gr_name(s_stat *p_stat);
 
 char *mtime(s_stat *p_stat);
 
+char get_filetype_char(s_stat *p_stat);
