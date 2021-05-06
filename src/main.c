@@ -2,8 +2,12 @@
 #include "libmx.h"
 
 static void print_error_no_file(char *filename) {
-    char *result = mx_strjoin("Error: ", filename);
+    char *t = mx_strjoin("'", filename);
+    char *filename_in_brackets = mx_strjoin(t, "'");
+    char *result = mx_strjoin("uls: cannot access ", filename_in_brackets);
     perror(result);
+    mx_strdel(&t);
+    mx_strdel(&filename_in_brackets);
     mx_strdel(&result);
 }
 
@@ -75,41 +79,43 @@ bool cmp_r(void *data1, void *data2) {
     return result <= 0;
 }
 
-static void add_flag(s_ls *ls, char flag) {
-    switch (flag) {
-        case 'l':
-            ls->flags |= FLAG_l;
-            break;
-        case 'a':
-            ls->flags |= FLAG_a;
-            break;
-        case 'r':
-            ls->flags |= FLAG_r;
-            break;
-        case '1':
-            ls->flags |= FLAG_1;
-            break;
-        case 'A':
-            ls->flags |= FLAG_A;
-            break;
-        case 'd':
-            ls->flags |= FLAG_d;
-            break;
-        case 'h':
-            ls->flags |= FLAG_h;
-            break;
-        case '@':
-            ls->flags |= FLAG_at;
-            break;
-        default:
-            invalid_flag(flag);
+static void add_flag(s_ls *ls, char *flag) {
+    for (int i = 1; flag[i]; i++) {
+        switch (flag[i]) {
+            case 'l':
+                ls->flags |= FLAG_l;
+                break;
+            case 'a':
+                ls->flags |= FLAG_a;
+                break;
+            case 'r':
+                ls->flags |= FLAG_r;
+                break;
+            case '1':
+                ls->flags |= FLAG_1;
+                break;
+            case 'A':
+                ls->flags |= FLAG_A;
+                break;
+            case 'd':
+                ls->flags |= FLAG_d;
+                break;
+            case 'h':
+                ls->flags |= FLAG_h;
+                break;
+            case '@':
+                ls->flags |= FLAG_at;
+                break;
+            default:
+                invalid_flag(flag[i]);
+        }
     }
 }
 
 static void parse_args(int argc, char **args, t_list **files, s_ls *ls) {
     for (int i = 1; i < argc; i++) {
-        if (mx_get_char_index(args[i], '-') == 0)
-            add_flag(ls, *(args[i] + 1));
+        if (mx_get_char_index(args[i], '-') == 0 && mx_strlen(args[i]) > 1)
+            add_flag(ls, args[i]);
         else
             mx_push_back(files, mx_strdup(args[i]));
     }
