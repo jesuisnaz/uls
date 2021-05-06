@@ -180,14 +180,13 @@ static void print_l_format(s_stat *p_stat, char *entry) {
 static void print_entries_l(DIR *dirp, s_ls *ls) {
     s_dirent *direntp = NULL;
     t_list *entry_names = NULL;
-    s_stat *p_stat = NULL;
+    s_stat *p_stat = (s_stat *) malloc(sizeof(s_stat));;
 
     while ((direntp = readdir(dirp)) != NULL) {
         mx_push_back(&entry_names, mx_strdup(direntp->d_name));
     }
     mx_sort_list(entry_names, ls->cmp_p);
     while (entry_names) {
-        p_stat = (s_stat *) malloc(sizeof(s_stat));
         stat(entry_names->data, p_stat);
         if (mx_strcmp(entry_names->data, ".") == 0 ||
             mx_strcmp(entry_names->data, "..") == 0) {
@@ -207,7 +206,7 @@ static void print_entries_l(DIR *dirp, s_ls *ls) {
             mx_pop_front(&entry_names);
         }
         mx_printchar('\n');
-        free(p_stat);
+//        free(p_stat);
     }
     closedir(dirp);
 }
