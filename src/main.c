@@ -33,17 +33,6 @@ static void find_nonexistent(t_list **files) {
     }
 }
 
-
-static void parse_args(int argc, char **args, t_list **files) {
-    if (argc < 2) {
-        mx_push_back(files, mx_strdup("./"));
-    } else {
-        for (int i = 1; args[i]; i++) {
-            mx_push_back(files, mx_strdup(args[i]));
-        }
-    }
-}
-
 bool cmp(void *data1, void *data2) {
     char *d1 = mx_strdup(data1);
     char *d2 = mx_strdup(data2);
@@ -57,7 +46,55 @@ bool cmp(void *data1, void *data2) {
     return result;
 }
 
-static void print_entries(DIR *dirp) {
+static void add_flag(s_ls *ls, char flag) {
+    switch (flag) {
+        case 'l':
+            ls->flags |= FLAG_l;
+            break;
+        case 'a':
+            ls->flags |= FLAG_a;
+            break;
+        case 'r':
+            ls->flags |= FLAG_r;
+            break;
+        case '1':
+            ls->flags |= FLAG_1;
+            break;
+        case 'A':
+            ls->flags |= FLAG_A;
+            break;
+        case 'd':
+            ls->flags |= FLAG_d;
+            break;
+        case 'h':
+            ls->flags |= FLAG_h;
+            break;
+        case '@':
+            ls->flags |= FLAG_at;
+            break;
+        default:
+            break;
+    }
+}
+
+static void parse_args(int argc, char **args, t_list **files, s_ls *ls) {
+    bool (*cmp_p)(void *, void *) = &cmp;
+
+    for (int i = 1; i < argc; i++) {
+        if (mx_get_char_index(args[i], '-') == 0)
+            add_flag(ls, *(args[i] + 1));
+        else
+            mx_push_back(files, mx_strdup(args[i]));
+    }
+    if (mx_is_empty(*files)) {
+        mx_push_back(files, mx_strdup("./"));
+    } else {
+        find_nonexistent(files);
+        mx_sort_list(*files, cmp_p);
+    }
+}
+
+static void print_entries(DIR *dirp, s_ls *ls) {
     struct dirent* direntp = NULL;
     t_list *entry_names = NULL;
     bool (*cmp_p)(void *, void *) = &cmp;
@@ -67,6 +104,17 @@ static void print_entries(DIR *dirp) {
     }
     mx_sort_list(entry_names, cmp_p);
     while (entry_names) {
+        if (mx_strcmp(entry_names->data, ".") == 0 ||
+         mx_strcmp(entry_names->data, "..") == 0) {
+            if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
+                mx_pop_front(&entry_names);
+                continue;
+            }
+        } else if (((char *)entry_names->data)[0] == '.' &&
+        ((ls->flags & (FLAG_A | FLAG_a)) == 0)) {
+            mx_pop_front(&entry_names);
+            continue;
+        }
         mx_printstr(entry_names->data);
         mx_pop_front(&entry_names);
         mx_is_empty(entry_names) ? mx_printchar('\n') : mx_printstr("  ");
@@ -74,15 +122,16 @@ static void print_entries(DIR *dirp) {
     closedir(dirp);
 }
 
-static void output_files(t_list **files) {
+static void output_files(t_list **files, s_ls *ls) {
     bool print_dir_names = mx_list_size(*files) > 1;
     for (int i = 0; !mx_is_empty(*files); i++) {
         if (print_dir_names) {
             mx_printstr((*files)->data);
             mx_printstr(":\n");
         }
-        print_entries(opendir((*files)->data));
+        print_entries(opendir((*files)->data), ls);
         mx_pop_front(files);
+        if (print_dir_names && !mx_is_empty(*files)) mx_printchar('\n');
     }
 }
 
@@ -95,11 +144,9 @@ static void cleanup(t_list **files) {
 
 int main(int argc, char **argv) {
     t_list *files = NULL;
-    bool (*cmp_p)(void *, void *) = &cmp;
+    s_ls *ls = (s_ls *)malloc(sizeof(s_ls));
 
-    parse_args(argc, argv, &files);
-    find_nonexistent(&files);
-    mx_sort_list(files, cmp_p);
-    output_files(&files);
+    parse_args(argc, argv, &files, ls);
+    output_files(&files, ls);
     cleanup(&files);
 }
