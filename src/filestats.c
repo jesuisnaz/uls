@@ -1,5 +1,37 @@
 #include "uls.h"
 
+int get_block_size(char* directory, s_ls *ls) {
+    int size = 0;
+
+    DIR *d;
+    struct dirent *dir;
+    struct stat fileStat;
+    d = opendir(directory);
+    if (d) {
+        while ((dir = readdir(d)) != NULL) {
+            if (mx_strcmp(dir->d_name, ".") == 0 ||
+                mx_strcmp(dir->d_name, "..") == 0) {
+                if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
+                    continue;
+                }
+            }
+            if (dir->d_name[0] == '.' &&
+                       ((ls->flags & (FLAG_A | FLAG_a)) == 0)) {
+                continue;
+            }
+            char info_path[PATH_MAX + 1];
+            mx_strcpy(info_path, directory);
+            if (directory[mx_strlen(directory) - 1] != '/')
+                mx_strcat(info_path, "/");
+            mx_strcat(info_path, dir->d_name);
+            stat(info_path, &fileStat);
+            size += fileStat.st_blocks;
+        }
+    }
+    closedir(d);
+    return size / 2;
+}
+
 char *permissions(struct stat *stat_p) {
     const char chars[] = "rwxrwxrwx";
     mode_t mode = stat_p->st_mode;

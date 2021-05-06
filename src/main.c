@@ -218,6 +218,11 @@ static void output_files(t_list **files, s_ls *ls) {
             mx_printstr((*files)->data);
             mx_printstr(":\n");
         }
+        if ((ls->flags & FLAG_l) != 0) {
+            mx_printstr("total ");
+            mx_printint(get_block_size((*files)->data, ls));
+            mx_printchar('\n');
+        }
         if ((ls->flags & FLAG_l) == 0)
             print_entries(opendir((*files)->data), ls);
         else
