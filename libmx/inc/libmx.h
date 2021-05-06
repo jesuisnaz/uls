@@ -45,6 +45,7 @@ int mx_tolower(int c);
 void mx_print_unicode(wchar_t c);
 double mx_pow(double n, unsigned int pow);
 int mx_sqrt(int x);
+int mx_intlen(int n);
 unsigned long mx_hex_to_nbr(const char *hex);
 void mx_foreach(int *arr, int size, void (*f)(int));
 int mx_binary_search(char **arr, int size, const char *s, int *count);

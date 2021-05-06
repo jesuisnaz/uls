@@ -27,26 +27,33 @@
 #include <grp.h>
 #include <time.h>
 
-typedef struct dirent s_dirent;
+typedef struct dirent t_dirent;
 
-typedef struct stat s_stat;
+typedef struct stat t_stat;
 
-typedef struct t_ls {
+typedef struct s_ls {
     char flags;
     bool (*cmp_p)(void *, void *);
-} s_ls;
+    int link_len;
+    int usr_len;
+    int grp_len;
+    int size_len;
+    int day_len;
+} t_ls;
 
 // File stats
-char *permissions(struct stat *p_stat);
+char *permissions(t_stat *p_stat);
+__nlink_t nlink(t_stat *p_stat);
+char *get_pw_name(t_stat *p_stat);
+char *get_gr_name(t_stat *p_stat);
+char *mtime(t_stat *p_stat);
+char get_filetype_char(t_stat *p_stat);
+int get_block_size(char* directory, t_ls *ls);
+int get_file_size(t_stat *p_stat);
 
-__nlink_t nlink(s_stat *p_stat);
-
-char *get_pw_name(s_stat *p_stat);
-
-char *get_gr_name(s_stat *p_stat);
-
-char *mtime(s_stat *p_stat);
-
-char get_filetype_char(s_stat *p_stat);
-
-int get_block_size(char* directory, s_ls *ls);
+// Output alignment
+int get_link_len(t_list *files, t_stat *p_stat);
+int get_usr_len(t_list *files, t_stat *p_stat);
+int get_grp_len(t_list *files, t_stat *p_stat);
+int get_size_len(t_list *files, t_stat *p_stat);
+int get_day_len(t_list *files, t_stat *p_stat);

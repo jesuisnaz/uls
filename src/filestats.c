@@ -1,6 +1,6 @@
 #include "uls.h"
 
-int get_block_size(char* directory, s_ls *ls) {
+int get_block_size(char* directory, t_ls *ls) {
     int size = 0;
 
     DIR *d;
@@ -32,7 +32,11 @@ int get_block_size(char* directory, s_ls *ls) {
     return size / 2;
 }
 
-char *permissions(struct stat *stat_p) {
+int get_file_size(t_stat *p_stat) {
+    return p_stat->st_size;
+}
+
+char *permissions(t_stat *stat_p) {
     const char chars[] = "rwxrwxrwx";
     mode_t mode = stat_p->st_mode;
     size_t mode_count = 9;
@@ -44,23 +48,23 @@ char *permissions(struct stat *stat_p) {
     return buf;
 }
 
-__nlink_t nlink(s_stat *p_stat) {
+__nlink_t nlink(t_stat *p_stat) {
     return p_stat->st_nlink;
 }
 
-char *get_pw_name(s_stat *p_stat) {
+char *get_pw_name(t_stat *p_stat) {
     return getpwuid(p_stat->st_uid)->pw_name;
 }
 
-char *get_gr_name(s_stat *p_stat) {
+char *get_gr_name(t_stat *p_stat) {
     return getgrgid(p_stat->st_gid)->gr_name;
 }
 
-char *mtime(s_stat *p_stat) {
+char *mtime(t_stat *p_stat) {
     return mx_strndup(ctime(&(p_stat->st_mtime)) + 4, NTIME_LEN - 13);
 }
 
-char get_filetype_char(s_stat *p_stat) {
+char get_filetype_char(t_stat *p_stat) {
     switch (p_stat->st_mode & S_IFMT) {
         case S_IFLNK:
             return 'l';

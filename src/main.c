@@ -79,7 +79,7 @@ bool cmp_r(void *data1, void *data2) {
     return result <= 0;
 }
 
-static void add_flag(s_ls *ls, char *flag) {
+static void add_flag(t_ls *ls, char *flag) {
     for (int i = 1; flag[i]; i++) {
         switch (flag[i]) {
             case 'l':
@@ -112,7 +112,7 @@ static void add_flag(s_ls *ls, char *flag) {
     }
 }
 
-static void parse_args(int argc, char **args, t_list **files, s_ls *ls) {
+static void parse_args(int argc, char **args, t_list **files, t_ls *ls) {
     for (int i = 1; i < argc; i++) {
         if (mx_get_char_index(args[i], '-') == 0 && mx_strlen(args[i]) > 1)
             add_flag(ls, args[i]);
@@ -128,8 +128,8 @@ static void parse_args(int argc, char **args, t_list **files, s_ls *ls) {
     }
 }
 
-static void print_entries(DIR *dirp, s_ls *ls) {
-    s_dirent *direntp = NULL;
+static void print_entries(DIR *dirp, t_ls *ls) {
+    t_dirent *direntp = NULL;
     t_list *entry_names = NULL;
     bool first = true;
     char *separator = isatty(1) ? "  " : "\n";
@@ -166,32 +166,51 @@ static void print_entries(DIR *dirp, s_ls *ls) {
     closedir(dirp);
 }
 
-static void print_l_format(s_stat *p_stat, char *entry) {
+static void print_spacing(int col_len, int word_len) {
+    mx_printchar(' ');
+    for (int i = 0; i < col_len - word_len; i++) {
+        mx_printchar(' ');
+    }
+}
+
+static void print_l_format(t_stat *p_stat, char *entry, t_ls *ls) {
+    int l = nlink(p_stat);
+    char *pw = get_pw_name(p_stat);
+    char *gr = get_gr_name(p_stat);
+    int f_s = get_file_size(p_stat);
+    char *mt = mtime(p_stat);
+
     mx_printchar(get_filetype_char(p_stat));
     mx_printstr(permissions(p_stat));
-    mx_printchar(' ');
+    print_spacing(ls->link_len, mx_intlen(l));
     mx_printint(nlink(p_stat));
-    mx_printchar(' ');
+    print_spacing(ls->usr_len, mx_strlen(pw));
     mx_printstr(get_pw_name(p_stat));
-    mx_printchar(' ');
+    print_spacing(ls->grp_len, mx_strlen(gr));
     mx_printstr(get_gr_name(p_stat));
+    print_spacing(ls->size_len, mx_intlen(f_s));
+    mx_printint(get_file_size(p_stat));
+
     mx_printchar(' ');
-    mx_printint(p_stat->st_size);
-    mx_printchar(' ');
-    mx_printstr(mtime(p_stat));
+    mx_printstr(mt);
     mx_printchar(' ');
     mx_printstr(entry);
 }
 
-static void print_entries_l(DIR *dirp, s_ls *ls) {
-    s_dirent *direntp = NULL;
+static void print_entries_l(DIR *dirp, t_ls *ls) {
+    t_dirent *direntp = NULL;
     t_list *entry_names = NULL;
-    s_stat *p_stat = (s_stat *) malloc(sizeof(s_stat));;
+    t_stat *p_stat = (t_stat *) malloc(sizeof(t_stat));
 
     while ((direntp = readdir(dirp)) != NULL) {
         mx_push_back(&entry_names, mx_strdup(direntp->d_name));
     }
     mx_sort_list(entry_names, ls->cmp_p);
+    ls->link_len = get_link_len(entry_names, p_stat);
+    ls->usr_len = get_usr_len(entry_names, p_stat);
+    ls->grp_len = get_grp_len(entry_names, p_stat);
+    ls->size_len = get_size_len(entry_names, p_stat);
+    ls->day_len = get_day_len(entry_names, p_stat);
     while (entry_names) {
         stat(entry_names->data, p_stat);
         if (mx_strcmp(entry_names->data, ".") == 0 ||
@@ -200,7 +219,7 @@ static void print_entries_l(DIR *dirp, s_ls *ls) {
                 mx_pop_front(&entry_names);
                 continue;
             } else {
-                print_l_format(p_stat, entry_names->data);
+                print_l_format(p_stat, entry_names->data, ls);
                 mx_pop_front(&entry_names);
             }
         } else if (((char *)entry_names->data)[0] == '.' &&
@@ -208,7 +227,7 @@ static void print_entries_l(DIR *dirp, s_ls *ls) {
             mx_pop_front(&entry_names);
             continue;
         } else {
-            print_l_format(p_stat, entry_names->data);
+            print_l_format(p_stat, entry_names->data, ls);
             mx_pop_front(&entry_names);
         }
         mx_printchar('\n');
@@ -217,7 +236,7 @@ static void print_entries_l(DIR *dirp, s_ls *ls) {
     closedir(dirp);
 }
 
-static void output_files(t_list **files, s_ls *ls) {
+static void output_files(t_list **files, t_ls *ls) {
     bool print_dir_names = mx_list_size(*files) > 1;
     for (int i = 0; !mx_is_empty(*files); i++) {
         if (print_dir_names) {
@@ -247,7 +266,7 @@ static void cleanup(t_list **files) {
 
 int main(int argc, char **argv) {
     t_list *files = NULL;
-    s_ls *ls = (s_ls *)malloc(sizeof(s_ls));
+    t_ls *ls = (t_ls *)malloc(sizeof(t_ls));
 
     parse_args(argc, argv, &files, ls);
     output_files(&files, ls);
