@@ -160,6 +160,44 @@ static void print_entries(DIR *dirp, s_ls *ls) {
     closedir(dirp);
 }
 
+static void print_entries_l(DIR *dirp, s_ls *ls) {
+    s_dirent *direntp = NULL;
+    t_list *entry_names = NULL;
+    bool first = true;
+    char *separator = isatty(1) ? "  " : "\n";
+
+    if ((ls->flags & FLAG_1) != 0) separator = "\n";
+    while ((direntp = readdir(dirp)) != NULL) {
+        mx_push_back(&entry_names, mx_strdup(direntp->d_name));
+    }
+    mx_sort_list(entry_names, ls->cmp_p);
+    while (entry_names) {
+        if (mx_strcmp(entry_names->data, ".") == 0 ||
+            mx_strcmp(entry_names->data, "..") == 0) {
+            if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
+                mx_pop_front(&entry_names);
+            } else {
+                if (!first) mx_printstr(separator);
+                first = false;
+                mx_printstr(entry_names->data);
+                mx_pop_front(&entry_names);
+            }
+        } else if (((char *)entry_names->data)[0] == '.' &&
+                   ((ls->flags & (FLAG_A | FLAG_a)) == 0)) {
+            mx_pop_front(&entry_names);
+        } else {
+            if (!first) mx_printstr(separator);
+            mx_printstr(entry_names->data);
+            first = false;
+            mx_pop_front(&entry_names);
+        }
+        if (mx_is_empty(entry_names)) {
+            mx_printchar('\n');
+        }
+    }
+    closedir(dirp);
+}
+
 static void output_files(t_list **files, s_ls *ls) {
     bool print_dir_names = mx_list_size(*files) > 1;
     for (int i = 0; !mx_is_empty(*files); i++) {
@@ -167,7 +205,10 @@ static void output_files(t_list **files, s_ls *ls) {
             mx_printstr((*files)->data);
             mx_printstr(":\n");
         }
-        print_entries(opendir((*files)->data), ls);
+        if ((ls->flags & FLAG_l) == 0)
+            print_entries(opendir((*files)->data), ls);
+        else
+            print_entries_l(opendir((*files)->data), ls);
         mx_pop_front(files);
         if (print_dir_names && !mx_is_empty(*files)) mx_printchar('\n');
     }
