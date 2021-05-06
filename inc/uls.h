@@ -26,8 +26,21 @@
 
 typedef struct dirent s_dirent;
 
+typedef struct stat s_stat;
+
 typedef struct t_ls {
     char flags;
     bool (*cmp_p)(void *, void *);
 } s_ls;
+
+// File stats
+char *permissions(struct stat *p_stat);
+
+__nlink_t nlink(s_stat *p_stat);
+
+char *get_pw_name(s_stat *p_stat);
+
+char *get_gr_name(s_stat *p_stat);
+
+char *mtime(s_stat *p_stat);
 

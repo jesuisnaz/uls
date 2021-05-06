@@ -160,40 +160,53 @@ static void print_entries(DIR *dirp, s_ls *ls) {
     closedir(dirp);
 }
 
+static void print_l_format(s_stat *p_stat, char *entry) {
+    mx_printstr(permissions(p_stat));
+    mx_printchar(' ');
+    mx_printint(nlink(p_stat));
+    mx_printchar(' ');
+    mx_printstr(get_pw_name(p_stat));
+    mx_printchar(' ');
+    mx_printstr(get_gr_name(p_stat));
+    mx_printchar(' ');
+    mx_printint(p_stat->st_size);
+    mx_printchar(' ');
+    mx_printstr(mtime(p_stat));
+    mx_printchar(' ');
+    mx_printstr(entry);
+}
+
 static void print_entries_l(DIR *dirp, s_ls *ls) {
     s_dirent *direntp = NULL;
     t_list *entry_names = NULL;
-    bool first = true;
-    char *separator = isatty(1) ? "  " : "\n";
+    s_stat *p_stat = NULL;
 
-    if ((ls->flags & FLAG_1) != 0) separator = "\n";
     while ((direntp = readdir(dirp)) != NULL) {
         mx_push_back(&entry_names, mx_strdup(direntp->d_name));
     }
     mx_sort_list(entry_names, ls->cmp_p);
     while (entry_names) {
+        p_stat = (s_stat *) malloc(sizeof(s_stat));
+        stat(entry_names->data, p_stat);
         if (mx_strcmp(entry_names->data, ".") == 0 ||
             mx_strcmp(entry_names->data, "..") == 0) {
             if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
                 mx_pop_front(&entry_names);
+                continue;
             } else {
-                if (!first) mx_printstr(separator);
-                first = false;
-                mx_printstr(entry_names->data);
+                print_l_format(p_stat, entry_names->data);
                 mx_pop_front(&entry_names);
             }
         } else if (((char *)entry_names->data)[0] == '.' &&
                    ((ls->flags & (FLAG_A | FLAG_a)) == 0)) {
             mx_pop_front(&entry_names);
+            continue;
         } else {
-            if (!first) mx_printstr(separator);
-            mx_printstr(entry_names->data);
-            first = false;
+            print_l_format(p_stat, entry_names->data);
             mx_pop_front(&entry_names);
         }
-        if (mx_is_empty(entry_names)) {
-            mx_printchar('\n');
-        }
+        mx_printchar('\n');
+        free(p_stat);
     }
     closedir(dirp);
 }
