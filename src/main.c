@@ -7,6 +7,20 @@ static void print_error_no_file(char *filename) {
     mx_strdel(&result);
 }
 
+static void print_error_no_flag(char flag) {
+    char *result = "uls: invalid option -- '";
+
+    mx_printstr(result);
+    mx_printchar(flag);
+    mx_printchar('\'');
+    mx_printchar('\n');
+}
+
+static void invalid_flag(char flag) {
+    print_error_no_flag(flag);
+    exit(0);
+}
+
 static void find_nonexistent(t_list **files) {
     DIR *dirp = NULL;
     t_list *node = *files;
@@ -46,6 +60,19 @@ bool cmp(void *data1, void *data2) {
     return result;
 }
 
+bool cmp_r(void *data1, void *data2) {
+    char *d1 = mx_strdup(data1);
+    char *d2 = mx_strdup(data2);
+    int after_dot1;
+    int after_dot2;
+    for (after_dot1 = 0; d1[after_dot1] == '.'; after_dot1++);
+    for (after_dot2 = 0; d2[after_dot2] == '.'; after_dot2++);
+    bool result = mx_strcmp_ignore_case(d1 + after_dot1, d2 + after_dot2) < 0;
+    mx_strdel(&d1);
+    mx_strdel(&d2);
+    return result;
+}
+
 static void add_flag(s_ls *ls, char flag) {
     switch (flag) {
         case 'l':
@@ -73,51 +100,60 @@ static void add_flag(s_ls *ls, char flag) {
             ls->flags |= FLAG_at;
             break;
         default:
-            break;
+            invalid_flag(flag);
     }
 }
 
 static void parse_args(int argc, char **args, t_list **files, s_ls *ls) {
-    bool (*cmp_p)(void *, void *) = &cmp;
-
     for (int i = 1; i < argc; i++) {
         if (mx_get_char_index(args[i], '-') == 0)
             add_flag(ls, *(args[i] + 1));
         else
             mx_push_back(files, mx_strdup(args[i]));
     }
+    ls->cmp_p = (ls->flags & FLAG_r) == 0 ? &cmp : &cmp_r;
     if (mx_is_empty(*files)) {
         mx_push_back(files, mx_strdup("./"));
     } else {
         find_nonexistent(files);
-        mx_sort_list(*files, cmp_p);
+        mx_sort_list(*files, ls->cmp_p);
     }
 }
 
 static void print_entries(DIR *dirp, s_ls *ls) {
-    struct dirent* direntp = NULL;
+    s_dirent *direntp = NULL;
     t_list *entry_names = NULL;
-    bool (*cmp_p)(void *, void *) = &cmp;
+    bool skipped = true;
 
     while ((direntp = readdir(dirp)) != NULL) {
         mx_push_back(&entry_names, mx_strdup(direntp->d_name));
     }
-    mx_sort_list(entry_names, cmp_p);
+    mx_sort_list(entry_names, ls->cmp_p);
     while (entry_names) {
         if (mx_strcmp(entry_names->data, ".") == 0 ||
          mx_strcmp(entry_names->data, "..") == 0) {
             if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
                 mx_pop_front(&entry_names);
-                continue;
+                skipped = true;
+            } else {
+                if (!skipped) mx_printstr("  ");
+                mx_printstr(entry_names->data);
+                skipped = false;
+                mx_pop_front(&entry_names);
             }
         } else if (((char *)entry_names->data)[0] == '.' &&
         ((ls->flags & (FLAG_A | FLAG_a)) == 0)) {
             mx_pop_front(&entry_names);
-            continue;
+            skipped = true;
+        } else {
+            if (!skipped) mx_printstr("  ");
+            mx_printstr(entry_names->data);
+            skipped = false;
+            mx_pop_front(&entry_names);
         }
-        mx_printstr(entry_names->data);
-        mx_pop_front(&entry_names);
-        mx_is_empty(entry_names) ? mx_printchar('\n') : mx_printstr("  ");
+        if (mx_is_empty(entry_names)) {
+            mx_printchar('\n');
+        }
     }
     closedir(dirp);
 }
