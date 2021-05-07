@@ -129,14 +129,14 @@ static void parse_args(int argc, char **args, t_list **files, t_ls *ls) {
 }
 
 static void print_entries(DIR *dirp, t_ls *ls) {
-    t_dirent *direntp = NULL;
+    t_dirent *dirent_p = NULL;
     t_list *entry_names = NULL;
     bool first = true;
     char *separator = isatty(1) ? "  " : "\n";
 
     if ((ls->flags & FLAG_1) != 0) separator = "\n";
-    while ((direntp = readdir(dirp)) != NULL) {
-        mx_push_back(&entry_names, mx_strdup(direntp->d_name));
+    while ((dirent_p = readdir(dirp)) != NULL) {
+        mx_push_back(&entry_names, mx_strdup(dirent_p->d_name));
     }
     mx_sort_list(entry_names, ls->cmp_p);
     while (entry_names) {
@@ -182,28 +182,46 @@ static void print_l_format(t_stat *p_stat, char *entry, t_ls *ls) {
 
     mx_printchar(get_filetype_char(p_stat));
     mx_printstr(permissions(p_stat));
+
     print_spacing(ls->link_len, mx_intlen(l));
-    mx_printint(nlink(p_stat));
+    mx_printint(l);
+
     print_spacing(ls->usr_len, mx_strlen(pw));
-    mx_printstr(get_pw_name(p_stat));
+    mx_printstr(pw);
+
     print_spacing(ls->grp_len, mx_strlen(gr));
-    mx_printstr(get_gr_name(p_stat));
+    mx_printstr(gr);
+
     print_spacing(ls->size_len, mx_intlen(f_s));
-    mx_printint(get_file_size(p_stat));
+    mx_printint(f_s);
 
     mx_printchar(' ');
     mx_printstr(mt);
+
     mx_printchar(' ');
     mx_printstr(entry);
 }
 
+static char *prepare_path(char *dir, char* file) {
+    char *path = mx_strdup(dir);
+    char *result = NULL;
+    if (dir[mx_strlen(dir) - 1] != '/') {
+        mx_strdel(&path);
+        path = mx_strjoin(dir, "/");
+    }
+    result = mx_strjoin(path, file);
+    mx_strdel(&path);
+    return result;
+}
+
 static void print_entries_l(DIR *dirp, t_ls *ls) {
-    t_dirent *direntp = NULL;
+    t_dirent *dirent_p = NULL;
     t_list *entry_names = NULL;
     t_stat *p_stat = (t_stat *) malloc(sizeof(t_stat));
+    char *file_path = NULL;
 
-    while ((direntp = readdir(dirp)) != NULL) {
-        mx_push_back(&entry_names, mx_strdup(direntp->d_name));
+    while ((dirent_p = readdir(dirp)) != NULL) {
+        mx_push_back(&entry_names, mx_strdup(dirent_p->d_name));
     }
     mx_sort_list(entry_names, ls->cmp_p);
     ls->link_len = get_link_len(entry_names, p_stat);
@@ -212,26 +230,23 @@ static void print_entries_l(DIR *dirp, t_ls *ls) {
     ls->size_len = get_size_len(entry_names, p_stat);
     ls->day_len = get_day_len(entry_names, p_stat);
     while (entry_names) {
-        stat(entry_names->data, p_stat);
         if (mx_strcmp(entry_names->data, ".") == 0 ||
             mx_strcmp(entry_names->data, "..") == 0) {
             if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
                 mx_pop_front(&entry_names);
                 continue;
-            } else {
-                print_l_format(p_stat, entry_names->data, ls);
-                mx_pop_front(&entry_names);
             }
         } else if (((char *)entry_names->data)[0] == '.' &&
                    ((ls->flags & (FLAG_A | FLAG_a)) == 0)) {
             mx_pop_front(&entry_names);
             continue;
-        } else {
-            print_l_format(p_stat, entry_names->data, ls);
-            mx_pop_front(&entry_names);
         }
+        file_path = prepare_path(ls->curr_dir_name, entry_names->data);
+        stat(file_path, p_stat);
+        print_l_format(p_stat, entry_names->data, ls);
+        mx_pop_front(&entry_names);
+        mx_strdel(&file_path);
         mx_printchar('\n');
-//        free(p_stat);
     }
     closedir(dirp);
 }
@@ -248,6 +263,7 @@ static void output_files(t_list **files, t_ls *ls) {
             mx_printint(get_block_size((*files)->data, ls));
             mx_printchar('\n');
         }
+        ls->curr_dir_name = (*files)->data;
         if ((ls->flags & FLAG_l) == 0)
             print_entries(opendir((*files)->data), ls);
         else

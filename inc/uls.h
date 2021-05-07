@@ -34,6 +34,7 @@ typedef struct stat t_stat;
 typedef struct s_ls {
     char flags;
     bool (*cmp_p)(void *, void *);
+    char *curr_dir_name;
     int link_len;
     int usr_len;
     int grp_len;
