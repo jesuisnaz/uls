@@ -3,4 +3,5 @@ obj/
 uls
 *.a
 cmake-build-debug
+tests.sh
 
