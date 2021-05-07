@@ -41,9 +41,25 @@ typedef struct s_ls {
     int size_len;
 } t_ls;
 
+// Err Handling
+void print_error_no_file(char *filename);
+void print_error_no_flag(char flag);
+void invalid_flag(char flag);
+
+// Parsing
+void parse_args(int argc, char **args, t_list **files, t_ls *ls);
+void add_flag(t_ls *ls, char *flag);
+
+// Printing
+void output_files(t_list **files, t_ls *ls);
+void print_entries_l(DIR *dirp, t_ls *ls);
+void print_entries(DIR *dirp, t_ls *ls);
+
 // Utils
-char *prepare_path(char *dir, char* file);
 bool is_curr_or_prev_dir(char *dir);
+char *prepare_path(char *dir, char* file);
+bool cmp(void *data1, void *data2);
+bool cmp_r(void *data1, void *data2);
 
 // File stats
 char *permissions(t_stat *p_stat);
@@ -56,8 +72,4 @@ int get_block_size(char* directory, t_ls *ls);
 int get_file_size(t_stat *p_stat);
 
 // Output alignment
-int get_link_len(t_list *files, char *dir, t_stat *p_stat);
-int get_usr_len(t_list *files, char *dir, t_stat *p_stat);
-int get_grp_len(t_list *files, char *dir, t_stat *p_stat);
-int get_size_len(t_list *files, char *dir, t_stat *p_stat);
-int get_day_len(t_list *files, char *dir, t_stat *p_stat);
+void set_field_lens(t_list *entry_names, t_ls *ls, t_stat *p_stat);

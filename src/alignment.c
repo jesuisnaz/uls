@@ -1,6 +1,6 @@
 #include "uls.h"
 
-int get_link_len(t_list *files, char *dir, t_stat *p_stat) {
+static int get_link_len(t_list *files, char *dir, t_stat *p_stat) {
     t_list *node = files;
     int result = 0;
     int curr_len = 0;
@@ -17,7 +17,7 @@ int get_link_len(t_list *files, char *dir, t_stat *p_stat) {
     return result;
 }
 
-int get_usr_len(t_list *files, char *dir, t_stat *p_stat) {
+static int get_usr_len(t_list *files, char *dir, t_stat *p_stat) {
     t_list *node = files;
     int result = 0;
     int curr_len = 0;
@@ -34,7 +34,7 @@ int get_usr_len(t_list *files, char *dir, t_stat *p_stat) {
     return result;
 }
 
-int get_grp_len(t_list *files, char *dir, t_stat *p_stat) {
+static int get_grp_len(t_list *files, char *dir, t_stat *p_stat) {
     t_list *node = files;
     int result = 0;
     int curr_len = 0;
@@ -51,7 +51,7 @@ int get_grp_len(t_list *files, char *dir, t_stat *p_stat) {
     return result;
 }
 
-int get_size_len(t_list *files, char *dir, t_stat *p_stat) {
+static int get_size_len(t_list *files, char *dir, t_stat *p_stat) {
     t_list *node = files;
     int result = 0;
     int curr_len;
@@ -66,4 +66,11 @@ int get_size_len(t_list *files, char *dir, t_stat *p_stat) {
     }
     mx_strdel(&path);
     return result;
+}
+
+void set_field_lens(t_list *entry_names, t_ls *ls, t_stat *p_stat) {
+    ls->link_len = get_link_len(entry_names, ls->curr_dir_name, p_stat);
+    ls->usr_len = get_usr_len(entry_names, ls->curr_dir_name, p_stat);
+    ls->grp_len = get_grp_len(entry_names, ls->curr_dir_name, p_stat);
+    ls->size_len = get_size_len(entry_names, ls->curr_dir_name, p_stat);
 }
