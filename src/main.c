@@ -86,6 +86,7 @@ static void add_flag(t_ls *ls, char *flag) {
                 ls->flags |= FLAG_l;
                 break;
             case 'a':
+                ls->flags &= ~FLAG_A;
                 ls->flags |= FLAG_a;
                 break;
             case 'r':
@@ -95,6 +96,7 @@ static void add_flag(t_ls *ls, char *flag) {
                 ls->flags |= FLAG_1;
                 break;
             case 'A':
+                ls->flags &= ~FLAG_a;
                 ls->flags |= FLAG_A;
                 break;
             case 'd':
@@ -202,7 +204,7 @@ static void print_l_format(t_stat *p_stat, char *entry, t_ls *ls) {
     mx_printstr(entry);
 }
 
-static char *prepare_path(char *dir, char* file) {
+char *prepare_path(char *dir, char* file) {
     char *path = mx_strdup(dir);
     char *result = NULL;
     if (dir[mx_strlen(dir) - 1] != '/') {
@@ -224,11 +226,10 @@ static void print_entries_l(DIR *dirp, t_ls *ls) {
         mx_push_back(&entry_names, mx_strdup(dirent_p->d_name));
     }
     mx_sort_list(entry_names, ls->cmp_p);
-    ls->link_len = get_link_len(entry_names, p_stat);
-    ls->usr_len = get_usr_len(entry_names, p_stat);
-    ls->grp_len = get_grp_len(entry_names, p_stat);
-    ls->size_len = get_size_len(entry_names, p_stat);
-    ls->day_len = get_day_len(entry_names, p_stat);
+    ls->link_len = get_link_len(entry_names, ls->curr_dir_name, p_stat);
+    ls->usr_len = get_usr_len(entry_names, ls->curr_dir_name, p_stat);
+    ls->grp_len = get_grp_len(entry_names, ls->curr_dir_name, p_stat);
+    ls->size_len = get_size_len(entry_names, ls->curr_dir_name, p_stat);
     while (entry_names) {
         if (mx_strcmp(entry_names->data, ".") == 0 ||
             mx_strcmp(entry_names->data, "..") == 0) {

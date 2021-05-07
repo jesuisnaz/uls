@@ -39,8 +39,10 @@ typedef struct s_ls {
     int usr_len;
     int grp_len;
     int size_len;
-    int day_len;
 } t_ls;
+
+// Utils
+char *prepare_path(char *dir, char* file);
 
 // File stats
 char *permissions(t_stat *p_stat);
@@ -53,8 +55,8 @@ int get_block_size(char* directory, t_ls *ls);
 int get_file_size(t_stat *p_stat);
 
 // Output alignment
-int get_link_len(t_list *files, t_stat *p_stat);
-int get_usr_len(t_list *files, t_stat *p_stat);
-int get_grp_len(t_list *files, t_stat *p_stat);
-int get_size_len(t_list *files, t_stat *p_stat);
-int get_day_len(t_list *files, t_stat *p_stat);
+int get_link_len(t_list *files, char *dir, t_stat *p_stat);
+int get_usr_len(t_list *files, char *dir, t_stat *p_stat);
+int get_grp_len(t_list *files, char *dir, t_stat *p_stat);
+int get_size_len(t_list *files, char *dir, t_stat *p_stat);
+int get_day_len(t_list *files, char *dir, t_stat *p_stat);
