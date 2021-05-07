@@ -43,6 +43,7 @@ typedef struct s_ls {
 
 // Utils
 char *prepare_path(char *dir, char* file);
+bool is_curr_or_prev_dir(char *dir);
 
 // File stats
 char *permissions(t_stat *p_stat);

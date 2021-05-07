@@ -32,7 +32,7 @@ static void find_nonexistent(t_list **files) {
 
     while (node) {
         dirp = opendir(node->data);
-        if (dirp == NULL) {
+        if (!dirp) {
             print_error_no_file(node->data);
             if (node == *files) {
                 mx_pop_front(files);
@@ -82,22 +82,22 @@ bool cmp_r(void *data1, void *data2) {
 static void add_flag(t_ls *ls, char *flag) {
     for (int i = 1; flag[i]; i++) {
         switch (flag[i]) {
-            case 'l':
-                ls->flags |= FLAG_l;
-                break;
             case 'a':
                 ls->flags &= ~FLAG_A;
                 ls->flags |= FLAG_a;
+                break;
+            case 'A':
+                ls->flags &= ~FLAG_a;
+                ls->flags |= FLAG_A;
+                break;
+            case 'l':
+                ls->flags |= FLAG_l;
                 break;
             case 'r':
                 ls->flags |= FLAG_r;
                 break;
             case '1':
                 ls->flags |= FLAG_1;
-                break;
-            case 'A':
-                ls->flags &= ~FLAG_a;
-                ls->flags |= FLAG_A;
                 break;
             case 'd':
                 ls->flags |= FLAG_d;
@@ -142,28 +142,23 @@ static void print_entries(DIR *dirp, t_ls *ls) {
     }
     mx_sort_list(entry_names, ls->cmp_p);
     while (entry_names) {
-        if (mx_strcmp(entry_names->data, ".") == 0 ||
-         mx_strcmp(entry_names->data, "..") == 0) {
+        if (is_curr_or_prev_dir(entry_names->data)) {
             if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
                 mx_pop_front(&entry_names);
-            } else {
-                if (!first) mx_printstr(separator);
-                first = false;
-                mx_printstr(entry_names->data);
-                mx_pop_front(&entry_names);
+                continue;
             }
         } else if (((char *)entry_names->data)[0] == '.' &&
         ((ls->flags & (FLAG_A | FLAG_a)) == 0)) {
             mx_pop_front(&entry_names);
-        } else {
-            if (!first) mx_printstr(separator);
-            mx_printstr(entry_names->data);
-            first = false;
-            mx_pop_front(&entry_names);
+            continue;
         }
-        if (mx_is_empty(entry_names)) {
-            mx_printchar('\n');
-        }
+        if (!first) mx_printstr(separator);
+        mx_printstr(entry_names->data);
+        first = false;
+        mx_pop_front(&entry_names);
+    }
+    if (mx_is_empty(entry_names)) {
+        mx_printchar('\n');
     }
     closedir(dirp);
 }
@@ -184,36 +179,26 @@ static void print_l_format(t_stat *p_stat, char *entry, t_ls *ls) {
 
     mx_printchar(get_filetype_char(p_stat));
     mx_printstr(permissions(p_stat));
-
     print_spacing(ls->link_len, mx_intlen(l));
     mx_printint(l);
-
     print_spacing(ls->usr_len, mx_strlen(pw));
     mx_printstr(pw);
-
     print_spacing(ls->grp_len, mx_strlen(gr));
     mx_printstr(gr);
-
     print_spacing(ls->size_len, mx_intlen(f_s));
     mx_printint(f_s);
-
     mx_printchar(' ');
     mx_printstr(mt);
-
     mx_printchar(' ');
     mx_printstr(entry);
+    mx_printchar('\n');
 }
 
-char *prepare_path(char *dir, char* file) {
-    char *path = mx_strdup(dir);
-    char *result = NULL;
-    if (dir[mx_strlen(dir) - 1] != '/') {
-        mx_strdel(&path);
-        path = mx_strjoin(dir, "/");
-    }
-    result = mx_strjoin(path, file);
-    mx_strdel(&path);
-    return result;
+static void set_field_lens(t_list *entry_names, t_ls *ls, t_stat *p_stat) {
+    ls->link_len = get_link_len(entry_names, ls->curr_dir_name, p_stat);
+    ls->usr_len = get_usr_len(entry_names, ls->curr_dir_name, p_stat);
+    ls->grp_len = get_grp_len(entry_names, ls->curr_dir_name, p_stat);
+    ls->size_len = get_size_len(entry_names, ls->curr_dir_name, p_stat);
 }
 
 static void print_entries_l(DIR *dirp, t_ls *ls) {
@@ -226,13 +211,9 @@ static void print_entries_l(DIR *dirp, t_ls *ls) {
         mx_push_back(&entry_names, mx_strdup(dirent_p->d_name));
     }
     mx_sort_list(entry_names, ls->cmp_p);
-    ls->link_len = get_link_len(entry_names, ls->curr_dir_name, p_stat);
-    ls->usr_len = get_usr_len(entry_names, ls->curr_dir_name, p_stat);
-    ls->grp_len = get_grp_len(entry_names, ls->curr_dir_name, p_stat);
-    ls->size_len = get_size_len(entry_names, ls->curr_dir_name, p_stat);
+    set_field_lens(entry_names, ls, p_stat);
     while (entry_names) {
-        if (mx_strcmp(entry_names->data, ".") == 0 ||
-            mx_strcmp(entry_names->data, "..") == 0) {
+        if (is_curr_or_prev_dir(entry_names->data)) {
             if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
                 mx_pop_front(&entry_names);
                 continue;
@@ -247,7 +228,6 @@ static void print_entries_l(DIR *dirp, t_ls *ls) {
         print_l_format(p_stat, entry_names->data, ls);
         mx_pop_front(&entry_names);
         mx_strdel(&file_path);
-        mx_printchar('\n');
     }
     closedir(dirp);
 }
@@ -265,7 +245,7 @@ static void output_files(t_list **files, t_ls *ls) {
             mx_printchar('\n');
         }
         ls->curr_dir_name = (*files)->data;
-        if ((ls->flags & FLAG_l) == 0)
+        if (!(ls->flags & FLAG_l))
             print_entries(opendir((*files)->data), ls);
         else
             print_entries_l(opendir((*files)->data), ls);
