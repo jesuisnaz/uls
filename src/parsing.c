@@ -1,6 +1,6 @@
 #include "uls.h"
 
-static void find_nonexistent(t_list **files) {
+static void find_nonexistent(t_list **files, t_ls *ls) {
     DIR *dirp = NULL;
     t_list *node = *files;
     t_list *prev = NULL;
@@ -8,7 +8,7 @@ static void find_nonexistent(t_list **files) {
     while (node) {
         dirp = opendir(node->data);
         if (!dirp) {
-            print_error_no_file(node->data);
+            print_error_no_file(node->data, ls);
             if (node == *files) {
                 mx_pop_front(files);
                 node = *files;
@@ -27,6 +27,7 @@ static void find_nonexistent(t_list **files) {
 }
 
 void parse_args(int argc, char **args, t_list **files, t_ls *ls) {
+    ls->uls_path = get_uls_path(args[0]);
     for (int i = 1; i < argc; i++) {
         if (mx_get_char_index(args[i], '-') == 0 && mx_strlen(args[i]) > 1)
             add_flag(ls, args[i]);
@@ -37,7 +38,7 @@ void parse_args(int argc, char **args, t_list **files, t_ls *ls) {
     if (mx_is_empty(*files)) {
         mx_push_back(files, mx_strdup("./"));
     } else {
-        find_nonexistent(files);
+        find_nonexistent(files, ls);
         mx_sort_list(*files, ls->cmp_p);
     }
 }
@@ -72,7 +73,7 @@ void add_flag(t_ls *ls, char *flag) {
                 ls->flags |= FLAG_at;
                 break;
             default:
-                invalid_flag(flag[i]);
+                invalid_flag(flag[i], ls);
         }
     }
 }

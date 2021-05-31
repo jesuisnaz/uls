@@ -35,6 +35,7 @@ typedef struct s_ls {
     char flags;
     bool (*cmp_p)(void *, void *);
     char *curr_dir_name;
+    char *uls_path;
     int link_len;
     int usr_len;
     int grp_len;
@@ -42,9 +43,9 @@ typedef struct s_ls {
 } t_ls;
 
 // Err Handling
-void print_error_no_file(char *filename);
-void print_error_no_flag(char flag);
-void invalid_flag(char flag);
+void print_error_no_file(char *filename, t_ls *ls);
+void print_error_no_flag(char flag, t_ls *ls);
+void invalid_flag(char flag, t_ls *ls);
 
 // Parsing
 void parse_args(int argc, char **args, t_list **files, t_ls *ls);
@@ -56,6 +57,7 @@ void print_entries_l(DIR *dirp, t_ls *ls);
 void print_entries(DIR *dirp, t_ls *ls);
 
 // Utils
+char *get_uls_path(char *path);
 bool is_curr_or_prev_dir(char *dir);
 char *prepare_path(char *dir, char* file);
 bool cmp(void *data1, void *data2);

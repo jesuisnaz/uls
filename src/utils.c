@@ -43,3 +43,9 @@ bool cmp_r(void *data1, void *data2) {
     mx_strdel(&d2);
     return result <= 0;
 }
+
+char *get_uls_path(char *path) {
+    int offset = path[0] == '.' ? 2 : 0;
+
+    return mx_strdup(path + offset);
+}
