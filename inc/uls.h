@@ -22,6 +22,10 @@
 #define NO_ACCESS_TMPL ": cannot access"
 #define INV_OPTION_TMPL ": invalid option -- '"
 #define CAL_YEAR_OFFSET 20
+#define CAL_HOUR_OFFSET 11
+#define YEAR_LEN 4
+#define HOUR_LEN 5
+
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -79,7 +83,7 @@ char get_filetype_char(t_stat *p_stat);
 int get_block_size(char* directory, t_ls *ls);
 int get_file_size(t_stat *p_stat);
 char *get_file_year(t_stat *p_stat);
-char *get_year_or_date(t_stat *p_stat, t_ls *uls);
+char *get_hour_or_year(t_stat *p_stat, t_ls *uls);
 
 // Output alignment
 void set_field_lens(t_list *entry_names, t_ls *ls, t_stat *p_stat);
