@@ -86,7 +86,7 @@ char get_filetype_char(t_stat *p_stat) {
 }
 
 char *get_file_month_and_day(t_stat *p_stat) {
-    return mx_strndup(ctime(&(p_stat->st_mtime)) + 4, 6);
+    return mx_strndup(ctime(&(p_stat->st_mtime)) + CAL_MONTH_DAY_OFFSET, MONTH_DAY_LEN);
 }
 
 static char *get_file_year(t_stat *p_stat) {

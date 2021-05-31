@@ -21,10 +21,14 @@
 
 #define NO_ACCESS_TMPL ": cannot access"
 #define INV_OPTION_TMPL ": invalid option -- '"
+
 #define CAL_YEAR_OFFSET 20
 #define CAL_HOUR_OFFSET 11
+#define CAL_MONTH_DAY_OFFSET 4
+
 #define YEAR_LEN 4
 #define HOUR_LEN 5
+#define MONTH_DAY_LEN 5
 
 
 #include <dirent.h>
