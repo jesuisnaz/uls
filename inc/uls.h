@@ -28,7 +28,7 @@
 
 #define YEAR_LEN 4
 #define HOUR_LEN 5
-#define MONTH_DAY_LEN 5
+#define MONTH_DAY_LEN 6
 
 
 #include <dirent.h>
@@ -53,6 +53,7 @@ typedef struct s_ls {
     int usr_len;
     int grp_len;
     int size_len;
+    int hour_year_len;
 } t_ls;
 
 // Err Handling
