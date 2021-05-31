@@ -5,6 +5,7 @@ void print_entries(DIR *dirp, t_ls *ls) {
     t_dirent *dirent_p = NULL;
     t_list *entry_names = NULL;
     bool first = true;
+    bool printed = false;
     char *separator = isatty(1) ? "  " : "\n";
 
     if ((ls->flags & FLAG_1) != 0) separator = "\n";
@@ -25,10 +26,11 @@ void print_entries(DIR *dirp, t_ls *ls) {
         }
         if (!first) mx_printstr(separator);
         mx_printstr(entry_names->data);
+        printed = true;
         first = false;
         mx_pop_front(&entry_names);
     }
-    if (mx_is_empty(entry_names)) {
+    if (mx_is_empty(entry_names) && printed) {
         mx_printchar('\n');
     }
     closedir(dirp);

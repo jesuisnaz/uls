@@ -21,6 +21,7 @@
 
 #define NO_ACCESS_TMPL ": cannot access '"
 #define INV_OPTION_TMPL ": invalid option -- '"
+#define CANNOT_OPEN_TMPL ": cannot open directory '"
 
 #define CAL_YEAR_OFFSET 20
 #define CAL_HOUR_OFFSET 11
@@ -31,6 +32,8 @@
 #define MONTH_DAY_LEN 6
 
 
+#include <errno.h>
+#include <string.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
