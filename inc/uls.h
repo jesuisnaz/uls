@@ -21,6 +21,7 @@
 
 #define NO_ACCESS_TMPL ": cannot access"
 #define INV_OPTION_TMPL ": invalid option -- '"
+#define CAL_YEAR_OFFSET 20
 
 #include <dirent.h>
 #include <sys/stat.h>
@@ -39,6 +40,7 @@ typedef struct s_ls {
     bool (*cmp_p)(void *, void *);
     char *curr_dir_name;
     char *uls_path;
+    char *curr_year;
     int link_len;
     int usr_len;
     int grp_len;
@@ -61,6 +63,7 @@ void print_entries(DIR *dirp, t_ls *ls);
 
 // Utils
 char *get_uls_path(char *path);
+char *get_curr_year();
 bool is_curr_or_prev_dir(char *dir);
 char *prepare_path(char *dir, char* file);
 bool cmp(void *data1, void *data2);

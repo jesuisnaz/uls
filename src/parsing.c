@@ -28,6 +28,7 @@ static void find_nonexistent(t_list **files, t_ls *ls) {
 
 void parse_args(int argc, char **args, t_list **files, t_ls *ls) {
     ls->uls_path = get_uls_path(args[0]);
+    ls->curr_year = get_curr_year();
     for (int i = 1; i < argc; i++) {
         if (mx_get_char_index(args[i], '-') == 0 && mx_strlen(args[i]) > 1)
             add_flag(ls, args[i]);

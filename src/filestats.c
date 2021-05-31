@@ -84,3 +84,7 @@ char get_filetype_char(t_stat *p_stat) {
             return '-';
     }
 }
+
+char *get_file_year(t_stat *p_stat) {
+    return mx_strdup(ctime(&(p_stat->st_mtime)) + CAL_YEAR_OFFSET);
+}
