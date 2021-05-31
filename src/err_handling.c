@@ -1,13 +1,11 @@
 #include "uls.h"
 
 void print_error_no_file(char *filename, t_ls *ls) {
-    char *t = mx_strjoin("'", filename);
-    char *filename_in_brackets = mx_strjoin(t, "'");
+    char *filename_in_brackets = mx_strjoin(filename, "'");
     char *msg_template = mx_strjoin(ls->uls_path, NO_ACCESS_TMPL);
     char *result = mx_strjoin(msg_template, filename_in_brackets);
 
     perror(result);
-    mx_strdel(&t);
     mx_strdel(&filename_in_brackets);
     mx_strdel(&msg_template);
     mx_strdel(&result);
