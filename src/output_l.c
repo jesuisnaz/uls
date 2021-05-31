@@ -12,7 +12,7 @@ static void print_l_format(t_stat *p_stat, char *entry, t_ls *ls) {
     char *pw = get_pw_name(p_stat);
     char *gr = get_gr_name(p_stat);
     int f_s = get_file_size(p_stat);
-    char *mt = mtime(p_stat);
+    char *f_date = get_year_or_date(p_stat, ls);
 
     mx_printchar(get_filetype_char(p_stat));
     mx_printstr(permissions(p_stat));
@@ -25,10 +25,11 @@ static void print_l_format(t_stat *p_stat, char *entry, t_ls *ls) {
     print_spacing(ls->size_len, mx_intlen(f_s));
     mx_printint(f_s);
     mx_printchar(' ');
-    mx_printstr(mt);
+    mx_printstr(f_date);
     mx_printchar(' ');
     mx_printstr(entry);
     mx_printchar('\n');
+    mx_strdel(&f_date);
 }
 
 void print_entries_l(DIR *dirp, t_ls *ls) {

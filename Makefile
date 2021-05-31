@@ -7,8 +7,8 @@ INCD = inc
 OBJD = obj
 LIBD = libmx
 
-CC = clang
-CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic #-g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined
+CC = clang                                        #_
+CFLAGS = -std=c11 -Wall -Wextra -Werror -Wpedantic# -g3 -O0 -fno-omit-frame-pointer -fsanitize=address,undefined
 MV = mv
 MK = mkdir -p
 RM = rm -rf

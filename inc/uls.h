@@ -78,6 +78,8 @@ char *mtime(t_stat *p_stat);
 char get_filetype_char(t_stat *p_stat);
 int get_block_size(char* directory, t_ls *ls);
 int get_file_size(t_stat *p_stat);
+char *get_file_year(t_stat *p_stat);
+char *get_year_or_date(t_stat *p_stat, t_ls *uls);
 
 // Output alignment
 void set_field_lens(t_list *entry_names, t_ls *ls, t_stat *p_stat);

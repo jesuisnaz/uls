@@ -3,8 +3,8 @@
 int get_block_size(char* directory, t_ls *ls) {
     int size = 0;
 
-    DIR *d;
-    struct dirent *dir;
+    DIR *d = NULL;
+    struct dirent *dir = NULL;
     struct stat fileStat;
     d = opendir(directory);
     if (d) {
@@ -86,5 +86,9 @@ char get_filetype_char(t_stat *p_stat) {
 }
 
 char *get_file_year(t_stat *p_stat) {
-    return mx_strdup(ctime(&(p_stat->st_mtime)) + CAL_YEAR_OFFSET);
+    return mx_strndup(ctime(&(p_stat->st_mtime)) + CAL_YEAR_OFFSET, 4);
+}
+
+char *get_year_or_date(t_stat *p_stat, t_ls *uls) {
+    return mx_strcmp(uls->curr_year, get_file_year(p_stat)) > 0 ? get_file_year(p_stat) : mx_strdup(mtime(p_stat));
 }

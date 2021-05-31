@@ -46,7 +46,7 @@ bool cmp_r(void *data1, void *data2) {
 
 char *get_curr_year() {
     time_t curr_time = time(&curr_time);
-    return mx_strdup(ctime(&curr_time) + CAL_YEAR_OFFSET);
+    return mx_strndup(ctime(&curr_time) + CAL_YEAR_OFFSET, 4);
 }
 
 char *get_uls_path(char *path) {
