@@ -27,7 +27,7 @@ static void print_l_format(t_stat *p_stat, char *entry, t_ls *ls) {
     mx_printint(f_s);
     mx_printchar(' ');
     mx_printstr(month_day);
-    mx_printchar(' ');
+    print_spacing(ls->hour_year_len, mx_strlen(f_hour_year));
     mx_printstr(f_hour_year);
     mx_printchar(' ');
     mx_printstr(entry);

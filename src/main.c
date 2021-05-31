@@ -13,6 +13,11 @@ static t_ls *init_ls() {
     ls->curr_dir_name = NULL;
     ls->uls_path = NULL;
     ls->curr_year = NULL;
+    ls->link_len = 0;
+    ls->usr_len = 0;
+    ls->grp_len = 0;
+    ls->size_len = 0;
+    ls->hour_year_len = 4;
     return ls;
 }
 
