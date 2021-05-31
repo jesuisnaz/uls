@@ -82,7 +82,7 @@ char *mtime(t_stat *p_stat);
 char get_filetype_char(t_stat *p_stat);
 int get_block_size(char* directory, t_ls *ls);
 int get_file_size(t_stat *p_stat);
-char *get_file_year(t_stat *p_stat);
+char *get_file_month_and_day(t_stat *p_stat);
 char *get_hour_or_year(t_stat *p_stat, t_ls *uls);
 
 // Output alignment
