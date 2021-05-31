@@ -19,6 +19,9 @@
 #define FLAG_h 0x30
 #define FLAG_at 040
 
+#define NO_ACCESS_TMPL ": cannot access"
+#define INV_OPTION_TMPL ": invalid option -- '"
+
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
