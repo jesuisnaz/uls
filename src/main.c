@@ -2,14 +2,18 @@
 #include "libmx.h"
 
 // TODO fix this
-static void cleanup(t_list **files) {
-    while (*files != NULL) {
-        mx_pop_front(files);
-    }
+static void cleanup(t_list **files, t_ls **ls) {
+    mx_delete_list(files);
+    mx_strdel(&(*ls)->curr_dir_name);
+    mx_strdel(&(*ls)->uls_path);
+    mx_strdel(&(*ls)->curr_year);
+    free(*ls);
 }
 
 static t_ls *init_ls() {
     t_ls *ls = (t_ls *) malloc(sizeof(t_ls));
+    ls->flags = 0;
+    ls->cmp_p = NULL;
     ls->curr_dir_name = NULL;
     ls->uls_path = NULL;
     ls->curr_year = NULL;
@@ -27,5 +31,5 @@ int main(int argc, char **argv) {
 
     parse_args(argc, argv, &dirs, ls);
     output_files(&dirs, ls);
-    cleanup(&dirs);
+    cleanup(&dirs, &ls);
 }

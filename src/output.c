@@ -16,11 +16,13 @@ void print_entries(DIR *dirp, t_ls *ls) {
     while (entry_names) {
         if (is_curr_or_prev_dir(entry_names->data)) {
             if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
+                free(entry_names->data);
                 mx_pop_front(&entry_names);
                 continue;
             }
         } else if (((char *)entry_names->data)[0] == '.' &&
         ((ls->flags & (FLAG_A | FLAG_a)) == 0)) {
+            free(entry_names->data);
             mx_pop_front(&entry_names);
             continue;
         }
@@ -28,6 +30,7 @@ void print_entries(DIR *dirp, t_ls *ls) {
         mx_printstr(entry_names->data);
         printed = true;
         first = false;
+        free(entry_names->data);
         mx_pop_front(&entry_names);
     }
     if (mx_is_empty(entry_names) && printed) {

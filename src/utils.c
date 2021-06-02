@@ -1,6 +1,7 @@
 #include "uls.h"
 
 bool is_curr_or_prev_dir(char *dir) {
+    if (!dir) return false;
     return !mx_strcmp(dir, ".") || !mx_strcmp(dir, "..");
 }
 
@@ -24,9 +25,9 @@ bool cmp(void *data1, void *data2) {
     for (after_dot1 = 0; d1[after_dot1] == '.'; after_dot1++);
     for (after_dot2 = 0; d2[after_dot2] == '.'; after_dot2++);
     int result = mx_strcmp_ignore_case(d1 + after_dot1, d2 + after_dot2);
-    if (result == 0) return mx_strlen(data1) > mx_strlen(data2);
     mx_strdel(&d1);
     mx_strdel(&d2);
+    if (result == 0) return mx_strlen(data1) > mx_strlen(data2);
     return result > 0;
 }
 
