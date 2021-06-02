@@ -58,6 +58,9 @@ void add_flag(t_ls *ls, char *flag) {
             case 'l':
                 ls->flags |= FLAG_l;
                 break;
+            case 'R':
+                ls->flags |= FLAG_R;
+                break;
             case 'r':
                 ls->flags |= FLAG_r;
                 break;

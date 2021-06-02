@@ -17,7 +17,8 @@
 #define FLAG_A 0x10
 #define FLAG_d 0x20
 #define FLAG_h 0x30
-#define FLAG_at 040
+#define FLAG_at 0x40
+#define FLAG_R 0x50
 
 #define NO_ACCESS_TMPL ": cannot access '"
 #define INV_OPTION_TMPL ": invalid option -- '"
