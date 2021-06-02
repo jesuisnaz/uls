@@ -36,24 +36,24 @@ void print_entries(DIR *dirp, t_ls *ls) {
     closedir(dirp);
 }
 
-void output_files(t_list **files, t_ls *ls) {
-    bool print_dir_names = mx_list_size(*files) > 1;
-    for (int i = 0; !mx_is_empty(*files); i++) {
+void output_files(t_list **dirs, t_ls *ls) {
+    bool print_dir_names = mx_list_size(*dirs) > 1;
+    for (int i = 0; !mx_is_empty(*dirs); i++) {
         if (print_dir_names) {
-            mx_printstr((*files)->data);
+            mx_printstr((*dirs)->data);
             mx_printstr(":\n");
         }
         if ((ls->flags & FLAG_l) != 0) {
             mx_printstr("total ");
-            mx_printint(get_block_size((*files)->data, ls));
+            mx_printint(get_block_size((*dirs)->data, ls));
             mx_printchar('\n');
         }
-        ls->curr_dir_name = (*files)->data;
+        ls->curr_dir_name = (*dirs)->data;
         if (!(ls->flags & FLAG_l))
-            print_entries(opendir((*files)->data), ls);
+            print_entries(opendir((*dirs)->data), ls);
         else
-            print_entries_l(opendir((*files)->data), ls);
-        mx_pop_front(files);
-        if (print_dir_names && !mx_is_empty(*files)) mx_printchar('\n');
+            print_entries_l(opendir((*dirs)->data), ls);
+        mx_pop_front(dirs);
+        if (print_dir_names && !mx_is_empty(*dirs)) mx_printchar('\n');
     }
 }

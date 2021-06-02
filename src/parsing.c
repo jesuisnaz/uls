@@ -26,21 +26,21 @@ static void find_nonexistent(t_list **files, t_ls *ls) {
     }
 }
 
-void parse_args(int argc, char **args, t_list **files, t_ls *ls) {
+void parse_args(int argc, char **args, t_list **dirs, t_ls *ls) {
     ls->uls_path = get_uls_path(args[0]);
     ls->curr_year = get_curr_year();
     for (int i = 1; i < argc; i++) {
         if (mx_get_char_index(args[i], '-') == 0 && mx_strlen(args[i]) > 1)
             add_flag(ls, args[i]);
         else
-            mx_push_back(files, mx_strdup(args[i]));
+            mx_push_back(dirs, mx_strdup(args[i]));
     }
     ls->cmp_p = (ls->flags & FLAG_r) == 0 ? &cmp : &cmp_r;
-    if (mx_is_empty(*files)) {
-        mx_push_back(files, mx_strdup("./"));
+    if (mx_is_empty(*dirs)) {
+        mx_push_back(dirs, mx_strdup("./"));
     } else {
-        find_nonexistent(files, ls);
-        mx_sort_list(*files, ls->cmp_p);
+        find_nonexistent(dirs, ls);
+        mx_sort_list(*dirs, ls->cmp_p);
     }
 }
 
@@ -57,6 +57,9 @@ void add_flag(t_ls *ls, char *flag) {
                 break;
             case 'l':
                 ls->flags |= FLAG_l;
+                break;
+            case 'R':
+                ls->flags |= FLAG_R;
                 break;
             case 'r':
                 ls->flags |= FLAG_r;
