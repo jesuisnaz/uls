@@ -96,3 +96,8 @@ char *get_hour_or_year(t_stat *p_stat, t_ls *uls);
 
 // Output alignment
 void set_field_lens(t_list *entry_names, t_ls *ls, t_stat *p_stat);
+
+extern ssize_t readlink (const char *__restrict __path,
+                         char *__restrict __buf, size_t __len)
+                       __THROW __nonnull ((1, 2)) __wur;
+

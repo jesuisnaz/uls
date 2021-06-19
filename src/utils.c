@@ -55,7 +55,15 @@ char *get_curr_year() {
 }
 
 char *get_uls_path(char *path) {
-    int offset = path[0] == '.' ? 2 : 0;
+    char *result = NULL;
+    int offset;
 
-    return mx_strdup(path + offset);
+    if (path[0] == '/') {
+        result = mx_strnew(100);
+        readlink("/proc/self/exe", result, 100);
+    } else {
+        offset = path[0] == '.' && path[1] != '.' ? 2 : 0;
+        result = mx_strdup(path + offset);
+    }
+    return result;
 }

@@ -1,5 +1,4 @@
 #include "uls.h"
-#include "libmx.h"
 
 // TODO fix this
 static void cleanup(t_list **files, t_ls **ls) {
@@ -28,7 +27,6 @@ static t_ls *init_ls() {
 int main(int argc, char **argv) {
     t_list *dirs = NULL;
     t_ls *ls = init_ls();
-
     parse_args(argc, argv, &dirs, ls);
     output_files(&dirs, ls);
     cleanup(&dirs, &ls);
