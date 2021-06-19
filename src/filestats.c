@@ -2,10 +2,10 @@
 
 int get_block_size(char* directory, t_ls *ls) {
     int size = 0;
-
     DIR *d = NULL;
     struct dirent *dir = NULL;
     struct stat fileStat;
+
     d = opendir(directory);
     if (d) {
         while ((dir = readdir(d)) != NULL) {
@@ -38,10 +38,10 @@ int get_file_size(t_stat *p_stat) {
 
 char *permissions(t_stat *stat_p) {
     const char chars[] = "rwxrwxrwx";
+
     mode_t mode = stat_p->st_mode;
     size_t mode_count = 9;
     char *buf = mx_strnew(mode_count);
-
     for (size_t i = 0; i < mode_count; i++) {
         buf[i] = (mode & (1 << (8 - i))) ? chars[i] : '-';
     }
