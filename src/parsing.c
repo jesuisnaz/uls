@@ -9,6 +9,7 @@ static void find_nonexistent(t_list **files, t_ls *ls) {
         dirp = opendir(node->data);
         if (!dirp) {
             print_error_no_file(node->data, ls);
+            mx_del_node_data(node);
             if (node == *files) {
                 mx_pop_front(files);
                 node = *files;

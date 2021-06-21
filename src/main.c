@@ -1,9 +1,8 @@
 #include "uls.h"
 
-// TODO fix this
 static void cleanup(t_list **files, t_ls **ls) {
-    mx_delete_list(files);
-    mx_strdel(&(*ls)->curr_dir_name);
+    mx_del_list_and_data(files);
+    (*ls)->curr_dir_name = NULL;
     mx_strdel(&(*ls)->uls_path);
     mx_strdel(&(*ls)->curr_year);
     free(*ls);

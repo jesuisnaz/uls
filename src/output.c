@@ -56,6 +56,7 @@ void output_files(t_list **dirs, t_ls *ls) {
             print_entries(opendir((*dirs)->data), ls);
         else
             print_entries_l(opendir((*dirs)->data), ls);
+        mx_del_node_data(*dirs);
         mx_pop_front(dirs);
         if (print_dir_names && !mx_is_empty(*dirs)) mx_printchar('\n');
     }
