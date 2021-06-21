@@ -1,6 +1,6 @@
 #include "uls.h"
 
-int get_block_size(char* directory, t_ls *ls) {
+int mx_get_block_size(char* directory, t_ls *ls) {
     int size = 0;
     DIR *d = NULL;
     struct dirent *dir = NULL;
@@ -32,11 +32,11 @@ int get_block_size(char* directory, t_ls *ls) {
     return size / 2;
 }
 
-int get_file_size(t_stat *p_stat) {
+int mx_get_file_size(t_stat *p_stat) {
     return p_stat->st_size;
 }
 
-char *permissions(t_stat *stat_p) {
+char *mx_permissions(t_stat *stat_p) {
     const char chars[] = "rwxrwxrwx";
 
     mode_t mode = stat_p->st_mode;
@@ -48,23 +48,23 @@ char *permissions(t_stat *stat_p) {
     return buf;
 }
 
-__nlink_t nlink(t_stat *p_stat) {
+__nlink_t mx_nlink(t_stat *p_stat) {
     return p_stat->st_nlink;
 }
 
-char *get_pw_name(t_stat *p_stat) {
+char *mx_get_pw_name(t_stat *p_stat) {
     return getpwuid(p_stat->st_uid)->pw_name;
 }
 
-char *get_gr_name(t_stat *p_stat) {
+char *mx_get_gr_name(t_stat *p_stat) {
     return getgrgid(p_stat->st_gid)->gr_name;
 }
 
-char *mtime(t_stat *p_stat) {
+char *mx_mtime(t_stat *p_stat) {
     return mx_strndup(ctime(&(p_stat->st_mtime)) + CAL_HOUR_OFFSET, HOUR_LEN);
 }
 
-char get_filetype_char(t_stat *p_stat) {
+char mx_get_filetype_char(t_stat *p_stat) {
     switch (p_stat->st_mode & S_IFMT) {
         case S_IFLNK:
             return 'l';
@@ -85,7 +85,7 @@ char get_filetype_char(t_stat *p_stat) {
     }
 }
 
-char *get_file_month_and_day(t_stat *p_stat) {
+char *mx_get_file_month_and_day(t_stat *p_stat) {
     return mx_strndup(ctime(&(p_stat->st_mtime)) + CAL_MONTH_DAY_OFFSET, MONTH_DAY_LEN);
 }
 
@@ -93,6 +93,6 @@ static char *get_file_year(t_stat *p_stat) {
     return mx_strndup(ctime(&(p_stat->st_mtime)) + CAL_YEAR_OFFSET, YEAR_LEN);
 }
 
-char *get_hour_or_year(t_stat *p_stat, t_ls *uls) {
-    return mx_strcmp(uls->curr_year, get_file_year(p_stat)) > 0 ? get_file_year(p_stat) : mtime(p_stat);
+char *mx_get_hour_or_year(t_stat *p_stat, t_ls *uls) {
+    return mx_strcmp(uls->curr_year, get_file_year(p_stat)) > 0 ? get_file_year(p_stat) : mx_mtime(p_stat);
 }

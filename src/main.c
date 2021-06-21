@@ -26,7 +26,7 @@ static t_ls *init_ls() {
 int main(int argc, char **argv) {
     t_list *dirs = NULL;
     t_ls *ls = init_ls();
-    parse_args(argc, argv, &dirs, ls);
-    output_files(&dirs, ls);
+    mx_parse_args(argc, argv, &dirs, ls);
+    mx_output_files(&dirs, ls);
     cleanup(&dirs, &ls);
 }

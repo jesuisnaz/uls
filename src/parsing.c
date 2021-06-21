@@ -8,7 +8,7 @@ static void find_nonexistent(t_list **files, t_ls *ls) {
     while (node) {
         dirp = opendir(node->data);
         if (!dirp) {
-            print_error_no_file(node->data, ls);
+            mx_print_error_no_file(node->data, ls);
             mx_del_node_data(node);
             if (node == *files) {
                 mx_pop_front(files);
@@ -27,7 +27,7 @@ static void find_nonexistent(t_list **files, t_ls *ls) {
     }
 }
 
-void add_flag(t_ls *ls, char *flag) {
+void mx_add_flag(t_ls *ls, char *flag) {
     for (int i = 1; flag[i]; i++) {
         switch (flag[i]) {
             case 'a':
@@ -60,22 +60,21 @@ void add_flag(t_ls *ls, char *flag) {
                 ls->flags |= FLAG_at;
                 break;
             default:
-                invalid_flag(flag[i], ls);
+                mx_invalid_flag(flag[i], ls);
         }
     }
 }
 
-
-void parse_args(int argc, char **args, t_list **dirs, t_ls *ls) {
+void mx_parse_args(int argc, char **args, t_list **dirs, t_ls *ls) {
     ls->uls_path = get_uls_path(args[0]);
     ls->curr_year = get_curr_year();
     for (int i = 1; i < argc; i++) {
         if (mx_get_char_index(args[i], '-') == 0 && mx_strlen(args[i]) > 1)
-            add_flag(ls, args[i]);
+            mx_add_flag(ls, args[i]);
         else
             mx_push_back(dirs, mx_strdup(args[i]));
     }
-    ls->cmp_p = (ls->flags & FLAG_r) == 0 ? &cmp : &cmp_r;
+    ls->cmp_p = (ls->flags & FLAG_r) == 0 ? &mx_cmp : &mx_cmp_r;
     if (mx_is_empty(*dirs)) {
         mx_push_back(dirs, mx_strdup("./"));
     } else {

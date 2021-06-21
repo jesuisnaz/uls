@@ -99,5 +99,5 @@ void mx_delete_list(t_list **list);
 void mx_del_node_data(t_list *node);
 void mx_del_list_and_data(t_list **list);
 bool mx_is_empty(t_list *list);
-t_list *mx_sort_list(t_list *lst, bool(*cmp)(void *, void *));
+t_list *mx_sort_list(t_list *lst, bool(*mx_cmp)(void *, void *));
 int mx_longest_in_list(t_list *list);

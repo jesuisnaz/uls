@@ -8,15 +8,15 @@ static void print_spacing(int col_len, int word_len) {
 }
 
 static void print_l_format(t_stat *p_stat, char *entry, t_ls *ls) {
-    int l = nlink(p_stat);
-    char *pw = get_pw_name(p_stat);
-    char *gr = get_gr_name(p_stat);
-    int f_s = get_file_size(p_stat);
-    char *month_day = get_file_month_and_day(p_stat);
-    char *f_hour_year = get_hour_or_year(p_stat, ls);
+    int l = mx_nlink(p_stat);
+    char *pw = mx_get_pw_name(p_stat);
+    char *gr = mx_get_gr_name(p_stat);
+    int f_s = mx_get_file_size(p_stat);
+    char *month_day = mx_get_file_month_and_day(p_stat);
+    char *f_hour_year = mx_get_hour_or_year(p_stat, ls);
 
-    mx_printchar(get_filetype_char(p_stat));
-    mx_printstr(permissions(p_stat));
+    mx_printchar(mx_get_filetype_char(p_stat));
+    mx_printstr(mx_permissions(p_stat));
     print_spacing(ls->link_len, mx_intlen(l));
     mx_printint(l);
     print_spacing(ls->usr_len, mx_strlen(pw));
@@ -36,7 +36,7 @@ static void print_l_format(t_stat *p_stat, char *entry, t_ls *ls) {
     mx_strdel(&f_hour_year);
 }
 
-void print_entries_l(DIR *dirp, t_ls *ls) {
+void mx_print_entries_l(DIR *dirp, t_ls *ls) {
     t_dirent *dirent_p = NULL;
     t_list *entry_names = NULL;
     t_stat *p_stat = (t_stat *) malloc(sizeof(t_stat));
@@ -46,9 +46,9 @@ void print_entries_l(DIR *dirp, t_ls *ls) {
         mx_push_back(&entry_names, mx_strdup(dirent_p->d_name));
     }
     mx_sort_list(entry_names, ls->cmp_p);
-    set_field_lens(entry_names, ls, p_stat);
+    mx_set_field_lens(entry_names, ls, p_stat);
     while (entry_names) {
-        if (is_curr_or_prev_dir(entry_names->data)) {
+        if (mx_is_curr_or_prev_dir(entry_names->data)) {
             if ((ls->flags & FLAG_A) != 0 || (ls->flags & FLAG_a) == 0) {
                 mx_pop_front(&entry_names);
                 continue;
@@ -58,7 +58,7 @@ void print_entries_l(DIR *dirp, t_ls *ls) {
             mx_pop_front(&entry_names);
             continue;
         }
-        file_path = prepare_path(ls->curr_dir_name, entry_names->data);
+        file_path = mx_prepare_path(ls->curr_dir_name, entry_names->data);
         stat(file_path, p_stat);
         print_l_format(p_stat, entry_names->data, ls);
         mx_pop_front(&entry_names);

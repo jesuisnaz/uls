@@ -1,11 +1,11 @@
 #include "uls.h"
 
-bool is_curr_or_prev_dir(char *dir) {
+bool mx_is_curr_or_prev_dir(char *dir) {
     if (!dir) return false;
     return !mx_strcmp(dir, ".") || !mx_strcmp(dir, "..");
 }
 
-char *prepare_path(char *dir, char* file) {
+char *mx_prepare_path(char *dir, char* file) {
     char *path = mx_strdup(dir);
     char *result = NULL;
     if (dir[mx_strlen(dir) - 1] != '/') {
@@ -17,7 +17,7 @@ char *prepare_path(char *dir, char* file) {
     return result;
 }
 
-bool cmp(void *data1, void *data2) {
+bool mx_cmp(void *data1, void *data2) {
     char *d1 = mx_strdup(data1);
     char *d2 = mx_strdup(data2);
     int after_dot1;
@@ -33,7 +33,7 @@ bool cmp(void *data1, void *data2) {
     return result > 0;
 }
 
-bool cmp_r(void *data1, void *data2) {
+bool mx_cmp_r(void *data1, void *data2) {
     char *d1 = mx_strdup(data1);
     char *d2 = mx_strdup(data2);
     int after_dot1;
